@@ -1,4 +1,4 @@
-File::Version version 0.01
+File::Version version 0.02
 ==========================
 
 INSTALLATION
@@ -17,11 +17,12 @@ There are no dependencies
 SYNOPSIS
        use File::Version;
 
-       my %args = {
+       my %args = (
            FILE            => 'foo.txt',
            SEARCH_PATHS    => ['/projects'],
            RECURSION_DEPTH => 10,
-           FOLLOW_SYMBOLIC => 0 };
+           FOLLOW_SYMBOLIC => 0 
+       );
 
        my $foo = File::Version->new(%args);
 
@@ -39,6 +40,7 @@ METHODS
 
        · $foo->recursion_depth( RECURSION_DEPTH => 5 ); # now
          seach only 5 directories deep
+
        · $foo->follow_symbolic( FOLLOW_SYMBOLIC => 1 ); # follow
          symbolic links (not recommended)
 
@@ -49,11 +51,12 @@ DESCRIPTION
        ceeding, we gather some information about the foo.txt fam­
        ily tree:
 
-       my %args = {
+       my %args = (
            FILE            => '/path/foo.txt',
            SEARCH_PATHS    => ['/home'],
            RECURSION_DEPTH => 10,
-           FOLLOW_SYMBOLIC => 0 };
+           FOLLOW_SYMBOLIC => 0
+       ); 
 
        my $foo = File::Version->new(%args);
 

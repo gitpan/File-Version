@@ -8,7 +8,7 @@ use integer;
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(); # nothing to export, this is OO 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use Carp;
 
 # file-private functions
