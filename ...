@@ -1,0 +1,61 @@
+#!/usr/bin/perl -w
+
+use File::Version;
+use Data::Dumper;
+use Getopt::Std;
+getopts('sp:r:');
+
+$opt_p = ($opt_p && -d $opt_p) ? $opt_p : '.';
+$opt_r ||= 1;
+
+unless (@ARGV) { die <<'USAGE' }
+cp_version.pl - simple versioning system.
+Usage: cp_version.pl [OPTIONS] INPUT FILE(s)
+  -p  search path
+  -r  recursion depth
+  -s  follow symbolic links (bool) 
+USAGE
+
+shift(@ARGV) if $ARGV[0] eq 'SPECIAL';
+my @files = @ARGV;
+my @files = grep { -f && -r _ } @ARGV;
+for(@files) {
+    my %args = {
+        FILE            => $_,
+        SEARCH_PATHS    => [ $opt_p ],
+        RECURSION_DEPTH => $opt_r,
+        FOLLOW_SYMBOLIC => $opt_s 
+    };
+    if(my $info = File::Version->new(%args) && $info->next_version) {
+       &copy($info) ? print "$info->{FILE} copied to $info->{NEXT_VERSION}\n"  
+                    : print "$info->{FILE} copy failed.\n"; 
+       print Dumper( $info );
+    }
+}
+
+sub copy {
+    my $info = shift;
+    return unless ( -f $info->{FILE} && -r _ );
+    if( -e $info->{NEXT_VERSION} ) {
+        print "$info->{NEXT_VERSION} already exists, skipping...\n";
+        return;
+    }
+    open(IN, "< $info->{FILE}") or die $!;
+    open(OUT, "> $info->{NEXT_VERSION}") or die $!;
+    my $size = (stat IN)[11] || 16384;
+    while ($len = sysread IN, $buf, $size) {
+        if(!defined $len) {
+            next if $! =~ /^Interrupted/;
+            die ("System read error: $!\n");
+        }
+        $offset = 0;
+        while ($len) {
+            defined($written = syswrite OUT, $buf, $len, $offset)
+                or die "System write error $!\n";
+            $len -= $written;
+            $offset += $written;
+        };
+    }
+    return 1;
+}
+
